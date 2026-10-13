@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JavaScript Assignments &amp; Mini Project</title>
+<style>
+  :root { --bg:#f6f7fb; --card:#fff; --text:#1f2430; --muted:#6b7280; --accent:#f7b500; --accent-dark:#b07f00; --console:#12151c; --console-text:#d6e2ff; --border:#e3e6ee; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#12151c; --card:#1b1f2a; --text:#e8ebf3; --muted:#9aa3b5; --console:#0b0d12; --border:#2a3040; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--text); }
+  header { padding:28px 20px 8px; max-width:960px; margin:0 auto; }
+  h1 { margin:0 0 6px; font-size:1.6rem; }
+  header p { margin:0; color:var(--muted); }
+  main { max-width:960px; margin:0 auto; padding:16px 20px 48px; display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; }
+  .card h2 { margin:0 0 4px; font-size:1rem; }
+  .card p { margin:0 0 12px; color:var(--muted); font-size:.9rem; }
+  button { cursor:pointer; border:0; border-radius:8px; padding:8px 14px; font-weight:600; background:var(--accent); color:#1f2430; }
+  button:hover { background:var(--accent-dark); color:#fff; }
+  .capstone { grid-column:1 / -1; border-color:var(--accent); }
+  #console-wrap { max-width:960px; margin:0 auto; padding:0 20px 40px; }
+  #console-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  #console-bar span { font-weight:600; }
+  #out { background:var(--console); color:var(--console-text); padding:16px; border-radius:12px; min-height:200px; margin:0; overflow-x:auto; white-space:pre-wrap; font:14px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  #out .err { color:#ff8a8a; }
+  #out .title { color:#f7b500; }
+</style>
+</head>
+<body>
+<header>
+  <h1>JavaScript Assignments &amp; Capstone Mini Project</h1>
+  <p>Click a button to run a program. Output appears in the console panel below. Programs that use <code>prompt()</code> will open a pop-up asking for input.</p>
+</header>
+
+<main>
+  <div class="card"><h2>Assignment 1</h2><p>Variables, data types, console</p><button data-run="assignments/assignment1.js" data-title="Assignment 1">Run</button></div>
+  <div class="card"><h2>Assignment 2</h2><p>Operators &amp; input (tip calculator)</p><button data-run="assignments/assignment2.js" data-title="Assignment 2">Run</button></div>
+  <div class="card"><h2>Assignment 3</h2><p>Conditional logic (grade)</p><button data-run="assignments/assignment3.js" data-title="Assignment 3">Run</button></div>
+  <div class="card"><h2>Assignment 4</h2><p>Loops: for, while, do...while</p><button data-run="assignments/assignment4.js" data-title="Assignment 4">Run</button></div>
+  <div class="card"><h2>Assignment 5</h2><p>Functions &amp; scope</p><button data-run="assignments/assignment5.js" data-title="Assignment 5">Run</button></div>
+  <div class="card"><h2>Assignment 6</h2><p>Arrays, objects, forEach / filter / map</p><button data-run="assignments/assignment6.js" data-title="Assignment 6">Run</button></div>
+  <div class="card capstone"><h2>Capstone: Product Inventory &amp; Analytics Dashboard</h2><p>Combines every concept: prompts, validation, loops, functions, array methods.</p><button data-run="mini-project/inventory.js" data-title="Capstone Mini Project">Run Mini Project</button></div>
+</main>
+
+<div id="console-wrap">
+  <div id="console-bar"><span>Console Output</span><button id="clear">Clear</button></div>
+  <pre id="out">Press a Run button to start...</pre>
+</div>
+
+<script>
+  const out = document.getElementById('out');
+
+  // Format values the way a console would (strings plain, objects/arrays inspected)
+  function inspect(v, top) {
+    if (typeof v === 'string') return top ? v : "'" + v + "'";
+    if (Array.isArray(v)) return v.length ? '[ ' + v.map(x => inspect(x)).join(', ') + ' ]' : '[]';
+    if (v && typeof v === 'object') {
+      const e = Object.entries(v);
+      return e.length ? '{ ' + e.map(([k, x]) => k + ': ' + inspect(x)).join(', ') + ' }' : '{}';
+    }
+    return String(v);
+  }
+
+  function write(text, cls) {
+    const span = document.createElement('span');
+    if (cls) span.className = cls;
+    span.textContent = text + '\n';
+    out.appendChild(span);
+  }
+
+  // Send console.log / console.error to the page as well as the browser console
+  const nativeLog = console.log.bind(console);
+  const nativeError = console.error.bind(console);
+  console.log = (...args) => { nativeLog(...args); write(args.map(a => inspect(a, true)).join(' ')); };
+  console.error = (...args) => { nativeError(...args); write(args.map(a => inspect(a, true)).join(' '), 'err'); };
+
+  function runScript(src, title) {
+    out.textContent = '';
+    write('==================== ' + title + ' ====================', 'title');
+    const s = document.createElement('script');
+    s.src = src + '?t=' + Date.now();          // reload fresh each time
+    s.onerror = () => write('Could not load ' + src, 'err');
+    document.body.appendChild(s);
+    s.addEventListener('load', () => s.remove());
+  }
+
+  window.addEventListener('error', (e) => write('Error: ' + e.message, 'err'));
+
+  document.querySelectorAll('button[data-run]').forEach(btn => {
+    btn.addEventListener('click', () => runScript(btn.dataset.run, btn.dataset.title));
+  });
+  document.getElementById('clear').addEventListener('click', () => { out.textContent = ''; });
+</script>
+</body>
+</html>

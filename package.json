@@ -1,0 +1,10 @@
+{
+  "name": "javascript-mini-project",
+  "version": "1.0.0",
+  "description": "JavaScript assignments 1-6 and the Interactive Product Inventory & Analytics Dashboard capstone",
+  "scripts": {
+    "start": "node mini-project/inventory.js",
+    "assignments": "node run-all.js"
+  },
+  "license": "MIT"
+}
